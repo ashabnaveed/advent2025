@@ -6,33 +6,42 @@
 int main(void) {
     FILE *fp = fopen(FILENAME, "r");
     if (fp == NULL) {
+        perror("fopen");
         return 1;
     }
 
     char line[128];
     int result = 0;
-    int curr_value = 50;
-    int direction = 0;
+    int curr_value = 50; 
 
     while (fgets(line, sizeof(line), fp) != NULL) {
         char R_or_L = line[0];
-        int value = atoi(line + 1);
+        long value = atoi(line + 1);  
+        int direction;
 
-        if (R_or_L == 'R') {
+        if (R_or_L == 'R')
             direction = 1;
-        } else if (R_or_L == 'L') {
+        else if (R_or_L == 'L')
             direction = -1;
+
+        int dist_to_zero;
+        if (direction == 1) {
+            dist_to_zero = (curr_value == 0) ? 100 : (100 - curr_value);
+        } else { 
+            dist_to_zero = (curr_value == 0) ? 100 : curr_value;
         }
 
-        for (int i = 0; i < value; i++){
-            curr_value = (curr_value + direction) % 100;
-            if (curr_value == 0)
-                result++;
-
-            if (curr_value < 0) {
-                curr_value += 100;
-            }
+        if (value >= dist_to_zero) {
+            int remaining = value - dist_to_zero;
+            result += 1 + remaining / 100;
         }
+
+        int delta = (value % 100) * direction;
+
+        curr_value = (curr_value + delta) % 100;
+        
+        if (curr_value < 0)
+            curr_value += 100;
     }
 
     printf("Password = %d\n", result);
